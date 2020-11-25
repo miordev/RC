@@ -99,57 +99,81 @@ if len(sys.argv) != nvar+1:
 p=[float(i) for i in sys.argv[1:nvar+1]]
 
 # Parámetros D-H:
-#        1      2           3      4     51     61       52     62          ef 
-d  = [p[0],     0,          0,     5,     1,  p[5],       1,  p[5],  1 + p[5]]
-th = [   0,  p[1],  90 + p[2],  p[3],     0,     0,       0,     0,         0]
-a  = [   2,     2,          0,     0,  p[4],     0,  - p[4],     0,         0]
-al = [   0,    90,         90,     0,     0,     0,       0,     0,         0]
+#       01   1     2           3      4     41  51     61      42   52   62         ef
+d  = [p[0],  0,    0,          0,     5,     0,  1,  p[5],      0,  1, p[5],  1 + p[5] ]
+th = [   0,  0, p[1],  90 + p[2],  p[3],     0,  0,     0,      0,  0,    0,         0 ]
+a  = [   0,  2,    2,          0,     0,  p[4],  0,     0, - p[4],  0,    0,         0 ]
+al = [   0,  0,   90,         90,     0,     0,  0,     0,      0,  0,    0,         0 ]
 
 # Orígenes para cada articulación
 o0_0=[0,0,0,1]
+o01_01=[0,0,0,1]
 o1_1=[0,0,0,1]
 o2_2=[0,0,0,1]
 o3_3=[0,0,0,1]
 o4_4=[0,0,0,1]
+
+o41_41=[0,0,0,1]
 o51_51=[0,0,0,1]
 o61_61=[0,0,0,1]
+
+o42_42=[0,0,0,1]
 o52_52=[0,0,0,1]
 o62_62=[0,0,0,1]
+
 oef_ef=[0,0,0,1]
 
 # Cálculo matrices transformación
-T0_1=matriz_T(d[0],th[0],a[0],al[0])
-T1_2=matriz_T(d[1],th[1],a[1],al[1])
-T2_3=matriz_T(d[2],th[2],a[2],al[2])
-T3_4=matriz_T(d[3],th[3],a[3],al[3])
-T4_51=matriz_T(d[4],th[4],a[4],al[4])
-T51_61=matriz_T(d[5],th[5],a[5],al[5])
-T4_52=matriz_T(d[6],th[6],a[6],al[6])
-T52_62=matriz_T(d[7],th[7],a[7],al[7])
-T4_ef=matriz_T(d[8],th[8],a[8],al[8])
+T0_01=matriz_T(d[0],th[0],a[0],al[0])
+T01_1=matriz_T(d[1],th[1],a[1],al[1])
+T1_2=matriz_T(d[2],th[2],a[2],al[2])
+T2_3=matriz_T(d[3],th[3],a[3],al[3])
+T3_4=matriz_T(d[4],th[4],a[4],al[4])
 
+T4_41=matriz_T(d[5],th[5],a[5],al[5])
+T41_51=matriz_T(d[6],th[6],a[6],al[6])
+T51_61=matriz_T(d[7],th[7],a[7],al[7])
+
+T4_42=matriz_T(d[8],th[8],a[8],al[8])
+T42_52=matriz_T(d[9],th[9],a[9],al[9])
+T52_62=matriz_T(d[10],th[10],a[10],al[10])
+
+T4_ef=matriz_T(d[11],th[11],a[11],al[11])
+
+
+T0_1=np.dot(T0_01,T01_1)
 T0_2=np.dot(T0_1,T1_2)
 T0_3=np.dot(T0_2,T2_3)
 T0_4=np.dot(T0_3,T3_4)
-T0_51=np.dot(T0_4,T4_51)
+
+T0_41=np.dot(T0_4,T4_41)
+T0_51=np.dot(T0_41,T41_51)
 T0_61=np.dot(T0_51,T51_61)
-T0_52=np.dot(T0_4,T4_52)
+
+T0_42=np.dot(T0_4,T4_42)
+T0_52=np.dot(T0_42,T42_52)
 T0_62=np.dot(T0_52,T52_62)
 T0_ef=np.dot(T0_4,T4_ef)
 
 # Transformación de cada articulación
+o01_0 =np.dot(T0_01, o01_01).tolist()
 o1_0 =np.dot(T0_1, o1_1).tolist()
 o2_0 =np.dot(T0_2, o2_2).tolist()
 o3_0 =np.dot(T0_3, o3_3).tolist()
 o4_0 =np.dot(T0_4, o4_4).tolist()
+
+o41_0 =np.dot(T0_41, o41_41).tolist()
 o51_0 =np.dot(T0_51, o51_51).tolist()
 o61_0 =np.dot(T0_61, o61_61).tolist()
+
+o42_0 =np.dot(T0_42, o42_42).tolist()
 o52_0 =np.dot(T0_52, o52_52).tolist()
 o62_0 =np.dot(T0_62, o62_62).tolist()
+
 oef_0 =np.dot(T0_ef, oef_ef).tolist()
 
 # Mostrar resultado de la cinemática directa
-muestra_origenes([ o0_0, o1_0, o2_0, o3_0, o4_0, [ [o51_0, o61_0], [o52_0, o62_0] ] ], oef_0)
-muestra_robot   ([ o0_0, o1_0, o2_0, o3_0, o4_0, [ [o51_0, o61_0], [o52_0, o62_0] ] ], oef_0)
+muestra_origenes([ o0_0, o01_0, o1_0, o2_0, o3_0, o4_0, [ [o41_0, o51_0, o61_0], [o42_0, o52_0, o62_0] ] ], oef_0)
+muestra_robot   ([ o0_0, o01_0, o1_0, o2_0, o3_0, o4_0, [ [o41_0, o51_0, o61_0], [o42_0, o52_0, o62_0] ] ], oef_0)
 input()
 
