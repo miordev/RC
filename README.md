@@ -13,4 +13,4 @@
   
 ### **Contenido:**  
 
-* **Práctica 1:** Diseño de manipuladores 
+* **Práctica 1:** Diseño de manipuladores (Cinemática directa)  
