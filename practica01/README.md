@@ -52,7 +52,7 @@ python ejercicio-extra-2.py [var1, var2, var3, ...]
 
 Se coloca cada uno de los valores separado por coma.
 
-> **Nota:** Los ángulos estan en grados
+> **Nota:** Los ángulos están en grados
 
 <a name="version"></a>
 ## 3. Versión 🛠️
