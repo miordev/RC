@@ -74,7 +74,7 @@ objetivo=[float(i) for i in sys.argv[1:]]
 
 O=range(len(th)+1) # Reservamos estructura en memoria
 O[0]=cin_dir(th,a) # Calculamos la posicion inicial
-print "- Posicion inicial:"
+print("- Posicion inicial:")
 muestra_origenes(O[0])
 
 dist = float("inf")
@@ -97,21 +97,21 @@ while (dist > EPSILON and abs(prev-dist) > EPSILON/100.):
     O[i+1] = cin_dir(th,a)
 
   dist = np.linalg.norm(np.subtract(objetivo,O[-1][-1]))
-  print "\n- Iteracion " + str(iteracion) + ':'
+  print("\n- Iteracion " + str(iteracion) + ':')
   muestra_origenes(O[-1])
   muestra_robot(O,objetivo)
-  print "Distancia al objetivo = " + str(round(dist,5))
+  print("Distancia al objetivo = " + str(round(dist,5)))
   iteracion+=1
   O[0]=O[-1]
 
 if dist <= EPSILON:
-  print "\n" + str(iteracion) + " iteraciones para converger."
+  print("\n" + str(iteracion) + " iteraciones para converger.")
 else:
-  print "\nNo hay convergencia tras " + str(iteracion) + " iteraciones."
-print "- Umbral de convergencia epsilon: " + str(EPSILON)
-print "- Distancia al objetivo:          " + str(round(dist,5))
-print "- Valores finales de las articulaciones:"
+  print("\nNo hay convergencia tras " + str(iteracion) + " iteraciones.")
+print("- Umbral de convergencia epsilon: " + str(EPSILON))
+print("- Distancia al objetivo:          " + str(round(dist,5)))
+print("- Valores finales de las articulaciones:")
 for i in range(len(th)):
-  print "  theta" + str(i+1) + " = " + str(round(th[i],3))
+  print("  theta" + str(i+1) + " = " + str(round(th[i],3)))
 for i in range(len(th)):
-  print "  L" + str(i+1) + "     = " + str(round(a[i],3))
+  print("  L" + str(i+1) + "     = " + str(round(a[i],3)))
