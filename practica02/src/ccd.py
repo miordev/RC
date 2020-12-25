@@ -75,7 +75,7 @@ def obtener_angulo(punto_a, punto_b, punto_c):
 # Cálculo de la cinemática inversa de forma iterativa por el método CCD
 
 # Valores arbitrarios de las articulares para la cinemática directa inicial
-# Los gardos están en radianes
+# Los ángulos están en radianes
 th = [0.0, 0.0, 0.0]
 a  = [5.0, 5.0, 5.0]
 
@@ -103,18 +103,16 @@ prev = 0.0
 iteracion = 1
 
 while (dist > EPSILON and abs(prev - dist) > EPSILON/100.0):
-  prev = dist  
-
-  final_index = len(th)
+  prev = dist
 
   # Para cada combinación de articulaciones
   for i in range(len(th)):
     indice_articulacion_actual = len(th) - 1 - i
 
-    punto_final = O[i][-1]
+    actuador_final = O[i][-1]
     efector = O[i][indice_articulacion_actual]
 
-    variacion_angulo = obtener_angulo(objetivo, punto_final, efector)
+    variacion_angulo = obtener_angulo(objetivo, actuador_final, efector)
     th[indice_articulacion_actual] += variacion_angulo
     
     O[i+1] = cin_dir(th, a)
