@@ -38,7 +38,6 @@ def muestra_robot(O,obj):
 
 
 # Calcula la matriz T
-# Los ángulos de entrada deben estar en grados
 def matriz_T(d, th, a, al):
   return  [ 
             [math.cos(th), - math.sin(th) * math.cos(al),   math.sin(th) * math.sin(al), a * math.cos(th)],
@@ -48,8 +47,8 @@ def matriz_T(d, th, a, al):
           ]
 
 
-#Sea 'th' el vector de thetas
-#Sea 'a'  el vector de longitudes
+# Sea 'th' el vector de thetas
+# Sea 'a'  el vector de longitudes
 def cin_dir(th, a):
   T = np.identity(4)
   o = [[0, 0]]
@@ -71,19 +70,45 @@ def obtener_angulo(punto_a, punto_b, punto_c):
   return beta
 
 
+def revisar_limites(articulaciones, limite_maximo, limite_minimo, indice_actual):
+  articulacion = articulaciones[indice_actual]
+  
+  limite_superior = limite_maximo[indice_actual]
+  limite_inferior = limite_minimo[indice_actual]
+
+  if (articulacion > limite_superior):
+    return limite_superior
+  elif (articulacion < limite_inferior):
+    return limite_inferior
+  else:
+    return articulacion
+
+
 # ******************************************************************************
 # Cálculo de la cinemática inversa de forma iterativa por el método CCD
 
-# Valores arbitrarios de las articulares para la cinemática directa inicial
+# ----- Tipo de articulación --------
+# 0 => Articulaciones de rotación
+# 1 => Articulaciones prismática
+tipo_articulacion = [0, 0, 1, 1]
+
+
+# ------ Límites de movimiento -----
+limite_maximo = [np.radians(120), np.radians(150), 15.0, 25.0]
+limite_minimo = [np.radians(-90), np.radians(-90), 0.0, 0.0]
+
+
+# ------- Valores arbitrarios iniciales ------ 
 # Los ángulos están en radianes
-th = [0.0, 0.0, 0.0]
-a  = [5.0, 5.0, 5.0]
+th = [0.0, 0.0, 0.0, np.radians(45)]
+a  = [5.0, 8.0, 15.0, 5.0]
 
 # Variable para representación gráfica
 L  = sum(a)
 EPSILON = 0.01
 
-plt.ion() # modo interactivo
+# Modo interactivo
+plt.ion()
 
 # Introducción del punto para la cinemática inversa
 if len(sys.argv) != 3:
@@ -107,13 +132,35 @@ while (dist > EPSILON and abs(prev - dist) > EPSILON/100.0):
 
   # Para cada combinación de articulaciones
   for i in range(len(th)):
-    indice_articulacion_actual = len(th) - 1 - i
+    indice_actual = len(th) - 1 - i
 
     actuador_final = O[i][-1]
-    efector = O[i][indice_articulacion_actual]
+    efector = O[i][indice_actual]
 
-    variacion_angulo = obtener_angulo(objetivo, actuador_final, efector)
-    th[indice_articulacion_actual] += variacion_angulo
+    # Articulación de rotación
+    if(tipo_articulacion[indice_actual] == 0):
+      
+      variacion_angulo = obtener_angulo(objetivo, actuador_final, efector)
+      th[indice_actual] += variacion_angulo
+
+      th[indice_actual] = revisar_limites(
+        th, limite_maximo, limite_minimo, indice_actual
+      )
+
+    # Articulación prismática
+    else:      
+      angulo_w = np.sum(th[0: indice_actual + 1])      
+      vector_con_angulo_w = [math.cos(angulo_w), math.sin(angulo_w)]
+
+      variacion_distancia = np.dot(
+        np.array(vector_con_angulo_w),
+        np.subtract(objetivo, actuador_final)
+      )
+      a[indice_actual] += variacion_distancia
+
+      a[indice_actual] = revisar_limites(
+        a, limite_maximo, limite_minimo, indice_actual
+      )
     
     O[i+1] = cin_dir(th, a)
 
