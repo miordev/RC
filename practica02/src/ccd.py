@@ -15,22 +15,23 @@ import colorsys as cs
 # ******************************************************************************
 # Declaración de funciones
 
-def muestra_origenes(O,final=0):
-  # Muestra los orígenes de coordenadas para cada articulación
+# Muestra los orígenes de coordenadas para cada articulación
+def muestra_origenes(O, final = 0):
   print('Origenes de coordenadas:')
   for i in range(len(O)):
-    print('(O'+str(i)+')0\t= '+str([round(j,3) for j in O[i]]))
+    print('(O' + str(i) + ')0\t= ' + str([round(j, 3) for j in O[i]]))
   if final:
-    print('E.Final = '+str([round(j,3) for j in final]))
+    print('E.Final = ' + str([round(j, 3) for j in final]))
 
-def muestra_robot(O,obj):
-  # Muestra el robot graficamente
+
+# Muestra el robot graficamente
+def muestra_robot(O, obj):
   plt.figure(1)
-  plt.xlim(-L,L)
-  plt.ylim(-L,L)
+  plt.xlim(-L, L)
+  plt.ylim(-L, L)
   T = [np.array(o).T.tolist() for o in O]
   for i in range(len(T)):
-    plt.plot(T[i][0], T[i][1], '-o', color=cs.hsv_to_rgb(i/float(len(T)),1,1))
+    plt.plot(T[i][0], T[i][1], '-o', color = cs.hsv_to_rgb(i / float(len(T)), 1, 1))
   plt.plot(obj[0], obj[1], '*')
   plt.show()
   input()
@@ -47,6 +48,7 @@ def matriz_T(d, th, a, al):
           ]
 
 
+# Calcula la cinemática directa
 # Sea 'th' el vector de thetas
 # Sea 'a'  el vector de longitudes
 def cin_dir(th, a):
@@ -54,11 +56,12 @@ def cin_dir(th, a):
   o = [[0, 0]]
   for i in range(len(th)):
     T = np.dot(T, matriz_T(0, th[i], a[i], 0))
-    tmp = np.dot(T, [0,0,0,1])
+    tmp = np.dot(T, [0, 0, 0, 1])
     o.append([tmp[0], tmp[1]])
   return o
 
 
+# Permite obtener el angulo entre dos vectores, definidos con 3 puntos
 def obtener_angulo(punto_a, punto_b, punto_c):
   vector_ac = np.subtract(punto_a, punto_c)
   vector_bc = np.subtract(punto_b, punto_c)
@@ -70,6 +73,7 @@ def obtener_angulo(punto_a, punto_b, punto_c):
   return beta
 
 
+# Verifica los límites de las articulaciones
 def revisar_limites(articulaciones, limite_maximo, limite_minimo, indice_actual):
   articulacion = articulaciones[indice_actual]
   
@@ -165,22 +169,24 @@ while (dist > EPSILON and abs(prev - dist) > EPSILON/100.0):
     O[i+1] = cin_dir(th, a)
 
 
-  dist = np.linalg.norm(np.subtract(objetivo,O[-1][-1]))
+  dist = np.linalg.norm(np.subtract(objetivo, O[-1][-1]))
   print("\n- Iteracion " + str(iteracion) + ':')
   muestra_origenes(O[-1])
-  muestra_robot(O,objetivo)
+  muestra_robot(O, objetivo)
   print("Distancia al objetivo = " + str(round(dist,5)))
-  iteracion+=1
-  O[0]=O[-1]
+  iteracion += 1
+  O[0] = O[-1]
 
 if dist <= EPSILON:
   print("\n" + str(iteracion) + " iteraciones para converger.")
 else:
   print("\nNo hay convergencia tras " + str(iteracion) + " iteraciones.")
+
 print("- Umbral de convergencia epsilon: " + str(EPSILON))
-print("- Distancia al objetivo:          " + str(round(dist,5)))
+print("- Distancia al objetivo:          " + str(round(dist, 5)))
 print("- Valores finales de las articulaciones:")
+
 for i in range(len(th)):
-  print("  theta" + str(i+1) + " = " + str(round(th[i],3)))
+  print("  theta" + str(i + 1) + " = " + str(round(th[i], 3)))
 for i in range(len(th)):
-  print("  L" + str(i+1) + "     = " + str(round(a[i],3)))
+  print("  L" + str(i + 1) + "     = " + str(round(a[i], 3)))
