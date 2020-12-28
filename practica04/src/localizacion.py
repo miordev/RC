@@ -1,33 +1,39 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Rob�tica Computacional 
-# Grado en Ingenier�a Inform�tica (Cuarto)
-# Pr�ctica 5:
-#     Simulaci�n de robots m�viles holon�micos y no holon�micos.
+# Robótica Computacional 
+# Grado en Ingeniería Informática (Cuarto)
+# Práctica 5:
+#     Simulación de robots móviles holonómicos y no holonómicos.
 
 import sys
-from math import *
+import math
 from robot import robot
 import random
 import numpy as np
 import matplotlib.pyplot as plt
 from datetime import datetime
+
 # ******************************************************************************
-# Declaraci�n de funciones
+# Declaración de funciones
 
-def distancia(a,b):
-  # Distancia entre dos puntos (admite poses)
-  return np.linalg.norm(np.subtract(a[:2],b[:2]))
+# Distancia entre dos puntos (admite poses)
+def distancia(a, b):
+  return np.linalg.norm(np.subtract(a[:2], b[:2]))
 
-def angulo_rel(pose,p):
-  # Diferencia angular entre una pose y un punto objetivo 'p'
-  w = atan2(p[1]-pose[1],p[0]-pose[0])-pose[2]
-  while w >  pi: w -= 2*pi
-  while w < -pi: w += 2*pi
+
+# Diferencia angular entre una pose y un punto objetivo 'p'
+def angulo_rel(pose, p):
+  w = math.atan2(p[1] - pose[1], p[0] - pose[0]) - pose[2]
+  
+  while (w > math.pi):
+    w -= 2 * math.pi
+  while (w < - math.pi):
+    w += 2 * math.pi
   return w
 
-def mostrar(objetivos,ideal,trayectoria):
+
+def mostrar(objetivos, ideal, trayectoria):
   # Mostrar objetivos y trayectoria:
   plt.ion() # modo interactivo
   # Fijar los bordes del gr�fico
@@ -46,13 +52,14 @@ def mostrar(objetivos,ideal,trayectoria):
   plt.plot(trayectoria[0][0],trayectoria[0][1],'or')
   r = radio * .1
   for p in trayectoria:
-    plt.plot([p[0],p[0]+r*cos(p[2])],[p[1],p[1]+r*sin(p[2])],'-r')
+    plt.plot([p[0],p[0]+r*math.cos(p[2])],[p[1],p[1]+r*math.sin(p[2])],'-r')
     #plt.plot(p[0],p[1],'or')
   objT   = np.array(objetivos).T.tolist()
   plt.plot(objT[0],objT[1],'-.o')
   plt.show()
   input()
   plt.clf()
+
 
 def localizacion(balizas, real, ideal, centro, radio, mostrar=0):
   # Buscar la localizaci�n m�s probable del robot, a partir de su sistema
@@ -79,71 +86,82 @@ def localizacion(balizas, real, ideal, centro, radio, mostrar=0):
 
 # ******************************************************************************
 
-# Definici�n del robot:
-P_INICIAL = [0.,4.,0.] # Pose inicial (posici�n y orientacion)
-V_LINEAL  = .7         # Velocidad lineal    (m/s)
-V_ANGULAR = 140.       # Velocidad angular   (�/s)
-FPS       = 10.        # Resoluci�n temporal (fps)
+# ------- Definición del robot --------
+P_INICIAL = [0.0, 4.0, 0.0]     # Pose inicial (posición y orientación)
+V_LINEAL  = 0.7                 # Velocidad lineal    (m/s)
+V_ANGULAR = 140.0               # Velocidad angular   (�/s)
+FPS       = 10.0                # Resolución temporal (fps)
 
 HOLONOMICO = 1
 GIROPARADO = 0
-LONGITUD   = .2
+LONGITUD   = 0.2
 
-# Definici�n de trayectorias:
+# ------ Definición de trayectorias ------
 trayectorias = [
-    [[1,3]],
-    [[0,2],[4,2]],
-    [[2,4],[4,0],[0,0]],
-    [[2,4],[2,0],[0,2],[4,2]],
-    [[2+2*sin(.8*pi*i),2+2*cos(.8*pi*i)] for i in range(5)]
-    ]
+  [[1,3]],
+  [[0,2], [4,2]],
+  [[2,4], [4,0], [0,0]],
+  [[2,4], [2,0], [0,2], [4,2]],
+  [[2 + 2 * math.sin(0.8 * math.pi * i), 2 + 2 * math.cos(0.8 * math.pi * i)] for i in range(5)]
+]
 
-# Definici�n de los puntos objetivo:
-if len(sys.argv)<2 or int(sys.argv[1])<0 or int(sys.argv[1])>=len(trayectorias):
-  sys.exit(sys.argv[0]+" <�ndice entre 0 y "+str(len(trayectorias)-1)+">")
+# ------- Definición de los puntos objetivo -------
+if len(sys.argv) < 2 or int(sys.argv[1]) < 0 or int(sys.argv[1]) >= len(trayectorias):
+  sys.exit(sys.argv[0]+" <Índice entre 0 y " + str(len(trayectorias)-1) + ">")
 objetivos = trayectorias[int(sys.argv[1])]
 
-# Definici�n de constantes:
-EPSILON = .1                # Umbral de distancia
-V = V_LINEAL/FPS            # Metros por fotograma
-W = V_ANGULAR*pi/(180*FPS)  # Radianes por fotograma
+
+# ------ Definición de constantes --------
+EPSILON = 0.1                           # Umbral de distancia
+V = V_LINEAL / FPS                      # Metros por fotograma
+W = V_ANGULAR * math.pi / (180 * FPS)   # Radianes por fotograma
+
 
 ideal = robot()
-ideal.set_noise(0,0,.1)   # Ruido lineal / radial / de sensado
-ideal.set(*P_INICIAL)     # operador 'splat'
+ideal.set_noise(0.0, 0.0, 0.1)    # Ruido: Lineal / Radial / Sensado
+ideal.set(*P_INICIAL)             # Usa el operador 'splat'
 
 real = robot()
-real.set_noise(.01,.01,.1)  # Ruido lineal / radial / de sensado
+real.set_noise(0.01, 0.01, 0.1)   # Ruido: Lineal / Radial / Sensado
 real.set(*P_INICIAL)
 
 # Definir mejor con localizacion
-random.seed(0)
-tray_ideal = [ideal.pose()]  # Trayectoria percibida
-tray_real = [real.pose()]     # Trayectoria seguida
+#random.seed(0)
+tray_ideal  = [ideal.pose()]    # Trayectoria percibida
+tray_real   = [real.pose()]     # Trayectoria seguida
 
-tiempo  = 0.
-espacio = 0.
+tiempo  = 0.0
+espacio = 0.0
+
 #random.seed(0)
 random.seed(datetime.now())
 for punto in objetivos:
-  while distancia(tray_ideal[-1],punto) > EPSILON and len(tray_ideal) <= 1000:
+  while distancia(tray_ideal[-1], punto) > EPSILON and len(tray_ideal) <= 1000:
     pose = ideal.pose()
 
-    w = angulo_rel(pose,punto)
-    if w > W:  w =  W
-    if w < -W: w = -W
-    v = distancia(pose,punto)
-    if (v > V): v = V
-    if (v < 0): v = 0
+    w = angulo_rel(pose, punto)
+    if (w > W):
+      w =  W
+    if (w < - W):
+      w = - W
 
-    if HOLONOMICO:
-      if GIROPARADO and abs(w) > .01:
+    v = distancia(pose, punto)
+    if (v > V):
+      v = V
+    if (v < 0):
+      v = 0
+
+    if (HOLONOMICO):
+      if (GIROPARADO and abs(w) > 0.01):
         v = 0
-      ideal.move(w,v)
-      real.move(w,v)
+
+      ideal.move(w, v)
+      real.move(w, v)
+      
     else:
-      ideal.move_triciclo(w,v,LONGITUD)
-      real.move_triciclo(w,v,LONGITUD)
+      ideal.move_triciclo(w, v, LONGITUD)
+      real.move_triciclo(w, v, LONGITUD)
+    
     tray_ideal.append(ideal.pose())
     tray_real.append(real.pose())
     
@@ -155,9 +173,11 @@ for punto in objetivos:
     tiempo  += 1
 
 if len(tray_ideal) > 1000:
-  print ("<!> Trayectoria muy larga - puede que no se haya alcanzado la posici�n final.")
-print ("Recorrido: "+str(round(espacio,3))+"m / "+str(tiempo/FPS)+"s")
-print ("Distancia real al objetivo: "+\
-    str(round(distancia(tray_real[-1],objetivos[-1]),3))+"m")
-mostrar(objetivos,tray_ideal,tray_real)  # Representaci�n gr�fica
+  print ("<!> Trayectoria muy larga - puede que no se haya alcanzado la posición final.")
+
+print ("Recorrido: " + str(round(espacio, 3)) + "m / " + str(tiempo/FPS) + "s")
+print ("Distancia real al objetivo: " + \
+  str(round(distancia(tray_real[-1], objetivos[-1]),3)) + "m")
+
+mostrar(objetivos, tray_ideal, tray_real)   # Representación gráfica
 
