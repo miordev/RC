@@ -61,25 +61,60 @@ def mostrar(objetivos, ideal, trayectoria):
   plt.clf()
 
 
-def localizacion(balizas, real, ideal, centro, radio, mostrar=0):
-  # Buscar la localizaci�n m�s probable del robot, a partir de su sistema
-  # sensorial, dentro de una regi�n cuadrada de centro "centro" y lado "2*radio".
+def localizacion(landmarks, real, ideal, center, radio, show = False):
+  # Buscar la localización más probable del robot, a partir de su sistema
+  # sensorial, dentro de una región cuadrada de centro "centro" y lado "2*radio".
 
+  LOCATION_FACTOR = 0.1
+  list_size = int(round((2 * radio) / LOCATION_FACTOR))
+  # imagen = np.zeros((list_size, list_size))
+  imagen = [[0 for x in range(list_size)] for y in range(list_size)]
 
-  #imagen = [1, 2]
+  real_measurements = real.sense(landmarks)
 
+  min_weight = float('inf')
+  best_x = 0
+  best_y = 0
 
-  if mostrar:
-    plt.ion() # modo interactivo
-    plt.xlim(centro[0]-radio,centro[0]+radio)
-    plt.ylim(centro[1]-radio,centro[1]+radio)
+  y = center[1] - radio
+  for i in range(list_size):
+    
+    x = center[0] - radio
+    for j in range(list_size):
+
+      ideal.set(x, y, ideal.orientation)
+      weight = ideal.measurement_prob(real_measurements, landmarks)
+      imagen[i][j] = weight
+
+      if (weight < min_weight):
+        min_weight = weight
+        best_x = x
+        best_y = y
+
+      x += LOCATION_FACTOR
+    y += LOCATION_FACTOR
+
+  ideal.set(best_x, best_y, ideal.orientation)
+
+  if show:
+    # Modo interactivo
+    plt.ion()
+
+    left = center[0] - radio
+    right = center[0] + radio
+    down = center[1] - radio
+    up = center[1] + radio
+
+    plt.xlim(left, right)
+    plt.ylim(down, up)
     imagen.reverse()
-    plt.imshow(imagen,extent=[centro[0]-radio,centro[0]+radio,\
-                              centro[1]-radio,centro[1]+radio])
-    balT = np.array(balizas).T.tolist();
-    plt.plot(balT[0],balT[1],'or',ms=10)
-    plt.plot(ideal.x,ideal.y,'D',c='#ff00ff',ms=10,mew=2)
-    plt.plot(real.x, real.y, 'D',c='#00ff00',ms=10,mew=2)
+    plt.imshow(imagen, extent = [left, right, down, up])
+
+    landmarks_list = np.array(landmarks).T.tolist()    
+    plt.plot(landmarks_list[0], landmarks_list[1], 'or', ms = 10)
+    plt.plot(ideal.x, ideal.y, 'D', c = '#ff00ff', ms = 10, mew = 2)
+    plt.plot(real.x, real.y, 'D', c = '#00ff00', ms = 10, mew = 2)
+
     plt.show()
     input()
     plt.clf()
@@ -115,6 +150,7 @@ objetivos = trayectorias[int(sys.argv[1])]
 EPSILON = 0.1                           # Umbral de distancia
 V = V_LINEAL / FPS                      # Metros por fotograma
 W = V_ANGULAR * math.pi / (180 * FPS)   # Radianes por fotograma
+MAX_WEIGHT = 0.01
 
 
 ideal = robot()
@@ -133,7 +169,8 @@ tray_real   = [real.pose()]     # Trayectoria seguida
 tiempo  = 0.0
 espacio = 0.0
 
-#random.seed(0)
+localizacion(objetivos, real, ideal, ideal.pose(), 1, True)
+
 random.seed(datetime.now())
 for punto in objetivos:
   while distancia(tray_ideal[-1], punto) > EPSILON and len(tray_ideal) <= 1000:
@@ -165,9 +202,11 @@ for punto in objetivos:
     tray_ideal.append(ideal.pose())
     tray_real.append(real.pose())
     
-    # ------ Las medidas son similares ------
-    # Hacer la nuevamente la localización
-    #localizacion(objetivos, real, ideal, punto, 3)
+    # ------ Revisar si las medidas son similares ------
+    real_measurements = real.sense(objetivos)
+    weight = ideal.measurement_prob(real_measurements, objetivos)
+    if (weight > MAX_WEIGHT):
+      localizacion(objetivos, real, ideal, ideal.pose(), 1, False)
 
     espacio += v
     tiempo  += 1

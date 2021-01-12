@@ -57,15 +57,18 @@ class robot:
 
   # Calcular la distancia a una de las balizas
   def sense1(self, landmark, noise):
-    return np.linalg.norm(np.subtract([self.x,self.y],landmark)) \
-                                        + random.gauss(0.,noise)
+    vector_robot_landmark = np.subtract([self.x, self.y], landmark)
+    distance_robot_landmark = np.linalg.norm(vector_robot_landmark)
+    error = random.gauss(0.0, noise)
+    
+    return (distance_robot_landmark + error)
 
   
   # Calcular las distancias a cada una de las balizas
   def sense(self, landmarks):
-    d = [self.sense1(l,self.sense_noise) for l in landmarks]
-    d.append(self.orientation + random.gauss(0.,self.sense_noise))
-    return d
+    distances = [self.sense1(l, self.sense_noise) for l in landmarks]
+    distances.append(self.orientation + random.gauss(0.0, self.sense_noise))
+    return distances
 
 
   # Modificar pose del robot (holonómico)
@@ -100,11 +103,14 @@ class robot:
   
   # Calcular la probabilidad de una medida.
   def measurement_prob(self, measurements, landmarks):
-    self.weight = 0.
-    for i in range(len(measurements)-1):
-      self.weight += abs(self.sense1(landmarks[i],0) -measurements[i])
+    self.weight = 0.0
+    for i in range(len(measurements) - 1):
+      self.weight += abs(self.sense1(landmarks[i], 0) - measurements[i])
+
     diff = self.orientation - measurements[-1]
-    while diff >  math.pi: diff -= 2 * math.pi
+
+    # PILAAAAAAAAA: Ángulos coterminales, me equivoqué. NO ES. Es cuadrar el ángulo en la dirección que corresponde
+    while diff > math.pi: diff -= 2 * math.pi
     while diff < - math.pi: diff += 2 * math.pi
     self.weight = self.weight + abs(diff) 
     return self.weight
