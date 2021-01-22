@@ -64,10 +64,10 @@ def mostrar(objetivos, ideal, trayectoria):
 def localizacion(landmarks, real, ideal, center, radio, show = False):
   # Buscar la localización más probable del robot, a partir de su sistema
   # sensorial, dentro de una región cuadrada de centro "centro" y lado "2*radio".
+      
+  LOCATION_FACTOR = 0.05
 
-  LOCATION_FACTOR = 0.1
   list_size = int(round((2 * radio) / LOCATION_FACTOR))
-  # imagen = np.zeros((list_size, list_size))
   imagen = [[0 for x in range(list_size)] for y in range(list_size)]
 
   real_measurements = real.sense(landmarks)
@@ -150,7 +150,7 @@ objetivos = trayectorias[int(sys.argv[1])]
 EPSILON = 0.1                           # Umbral de distancia
 V = V_LINEAL / FPS                      # Metros por fotograma
 W = V_ANGULAR * math.pi / (180 * FPS)   # Radianes por fotograma
-MAX_WEIGHT = 0.01
+MAX_WEIGHT = 0.05
 
 
 ideal = robot()
@@ -169,7 +169,8 @@ tray_real   = [real.pose()]     # Trayectoria seguida
 tiempo  = 0.0
 espacio = 0.0
 
-localizacion(objetivos, real, ideal, ideal.pose(), 1, True)
+random_pos = [0, 0]
+localizacion(objetivos, real, ideal, random_pos, 5, True)
 
 random.seed(datetime.now())
 for punto in objetivos:
@@ -205,6 +206,7 @@ for punto in objetivos:
     # ------ Revisar si las medidas son similares ------
     real_measurements = real.sense(objetivos)
     weight = ideal.measurement_prob(real_measurements, objetivos)
+    
     if (weight > MAX_WEIGHT):
       localizacion(objetivos, real, ideal, ideal.pose(), 1, False)
 
