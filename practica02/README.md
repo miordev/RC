@@ -16,7 +16,7 @@
 
 ## 📄 **Índice de Contenidos** 
 
-- [ Compilar y Ejecutar ](#execution)
+- [ Ejecutación ](#execution)
 - [ Lenguaje ](#language)
 
 <a name="execution"></a>
