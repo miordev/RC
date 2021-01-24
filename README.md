@@ -13,4 +13,6 @@
   
 ### **Contenido:**  
 
-* **Práctica 1:** Diseño de manipuladores (Cinemática directa)  
+* **Práctica 1:** Diseño de manipuladores (Cinemática directa) 
+* **Práctica 2:** Cinemática inversa 
+* **Práctica 4:** Localización 
