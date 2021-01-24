@@ -2,7 +2,7 @@
   
 **Alumno:** Miguel Angel Ordoñez ✒️  
 **Correo:** miguel.morales.21@ull.edu.es  
-**Fecha:** 7 de Enero del 2021  
+**Fecha:** 25 de Enero del 2021  
 
 **Universidad:** Universidad de La Laguna  
 **Facultad:** Escuela Superior de Ingeniería y Tecnología  
@@ -10,43 +10,46 @@
 **Asignatura:** Robótica Computacional  
 **Curso:** 4º  
   
-**Objetivo:** Calcular la cinemática inversa mediante el método CCD 
+**Objetivo:** Robótica movil con localización
 
----
 
 ## 📄 **Índice de Contenidos** 
 
-- [ Compilar y Ejecutar ](#execution)
+- [ Preparación ](#preparation)
+- [ Ejecución ](#execution)
 - [ Lenguaje ](#language)
 
-<a name="execution"></a>
-## ⚙️ **Ejecución** 
+
+<a name="preparation"></a>
+## 🔌 **Preparación** 
 
 * Crear un entorno virtual
 
 ```bash
-virtualenv entorno-rc -p python3
+../practica04 virtualenv entorno-rc -p python3
 ```
 
 * Activar el entorno virtual
 
 ```bash
-source entorno-rc/bin/activate
+../practica04 source entorno-rc/bin/activate
 ```
 
 * Instalar dependencias
 
-
 ```bash
-pip install -r requirements.txt
+../practica04 pip install -r requirements.txt
 ```
 
-* Ejecutar programa
+<a name="execution"></a>
+## ⚙️ **Ejecución** 
 
 ```bash
-cd src
-python ccd.py 10 10
+../practica04 cd src
+../practica04/src python localizacion.py <número-de-la-trayectoria>
 ```
+
+> **Nota:** El número de la trayectoria es un valor entre 0 y 4
 
 <a name="language"></a>
 ## 💻 **Lenguaje** 
