@@ -26,29 +26,30 @@
 * Crear un entorno virtual
 
 ```bash
-virtualenv entorno-rc -p python3
+<directorio-local>/practica04 virtualenv entorno-rc -p python3
 ```
 
 * Activar el entorno virtual
 
 ```bash
-source entorno-rc/bin/activate
+<directorio-local>/practica04 source entorno-rc/bin/activate
 ```
 
 * Instalar dependencias
 
-
 ```bash
-pip install -r requirements.txt
+<directorio-local>/practica04 pip install -r requirements.txt
 ```
 
 <a name="execution"></a>
 ## ⚙️ **Ejecución** 
 
 ```bash
-cd src
-python ccd.py 10 10
+<directorio-local>/practica04 cd src
+<directorio-local>/practica04/src python localizacion.py <número-de-la-trayectoria>
 ```
+
+> **Nota:** El número de la trayectoria es un valor entre 0 y 4
 
 <a name="language"></a>
 ## 💻 **Lenguaje** 
