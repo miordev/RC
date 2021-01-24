@@ -109,7 +109,6 @@ class robot:
 
     diff = self.orientation - measurements[-1]
 
-    # PILAAAAAAAAA: Ángulos coterminales, me equivoqué. NO ES. Es cuadrar el ángulo en la dirección que corresponde
     while diff > math.pi: diff -= 2 * math.pi
     while diff < - math.pi: diff += 2 * math.pi
     self.weight = self.weight + abs(diff) 

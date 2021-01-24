@@ -36,7 +36,7 @@ def angulo_rel(pose, p):
 def mostrar(objetivos, ideal, trayectoria):
   # Mostrar objetivos y trayectoria:
   plt.ion() # modo interactivo
-  # Fijar los bordes del gr�fico
+  # Fijar los bordes del gráfico
   objT   = np.array(objetivos).T.tolist()
   trayT  = np.array(trayectoria).T.tolist()
   ideT   = np.array(ideal).T.tolist()
@@ -61,9 +61,9 @@ def mostrar(objetivos, ideal, trayectoria):
   plt.clf()
 
 
+# Buscar la localización más probable del robot, a partir de su sistema
+# sensorial, dentro de una región cuadrada de centro "centro" y lado "2 * radio".
 def localizacion(landmarks, real, ideal, center, radio, show = False):
-  # Buscar la localización más probable del robot, a partir de su sistema
-  # sensorial, dentro de una región cuadrada de centro "centro" y lado "2*radio".
       
   LOCATION_FACTOR = 0.05
 
@@ -124,7 +124,7 @@ def localizacion(landmarks, real, ideal, center, radio, show = False):
 # ------- Definición del robot --------
 P_INICIAL = [0.0, 4.0, 0.0]     # Pose inicial (posición y orientación)
 V_LINEAL  = 0.7                 # Velocidad lineal    (m/s)
-V_ANGULAR = 140.0               # Velocidad angular   (�/s)
+V_ANGULAR = 140.0               # Velocidad angular   (m/s)
 FPS       = 10.0                # Resolución temporal (fps)
 
 HOLONOMICO = 1
@@ -150,7 +150,7 @@ objetivos = trayectorias[int(sys.argv[1])]
 EPSILON = 0.1                           # Umbral de distancia
 V = V_LINEAL / FPS                      # Metros por fotograma
 W = V_ANGULAR * math.pi / (180 * FPS)   # Radianes por fotograma
-MAX_WEIGHT = 0.05
+MAX_WEIGHT = 0.3
 
 
 ideal = robot()
@@ -161,8 +161,6 @@ real = robot()
 real.set_noise(0.01, 0.01, 0.1)   # Ruido: Lineal / Radial / Sensado
 real.set(*P_INICIAL)
 
-# Definir mejor con localizacion
-#random.seed(0)
 tray_ideal  = [ideal.pose()]    # Trayectoria percibida
 tray_real   = [real.pose()]     # Trayectoria seguida
 
@@ -203,10 +201,11 @@ for punto in objetivos:
     tray_ideal.append(ideal.pose())
     tray_real.append(real.pose())
     
-    # ------ Revisar si las medidas son similares ------
+    # Revisar si las medidas son similares entre el robot real e ideal 
     real_measurements = real.sense(objetivos)
     weight = ideal.measurement_prob(real_measurements, objetivos)
     
+    # La distancia entre el robot real e ideal ha superado el límite 
     if (weight > MAX_WEIGHT):
       localizacion(objetivos, real, ideal, ideal.pose(), 1, False)
 
@@ -216,9 +215,10 @@ for punto in objetivos:
 if len(tray_ideal) > 1000:
   print ("<!> Trayectoria muy larga - puede que no se haya alcanzado la posición final.")
 
-print ("Recorrido: " + str(round(espacio, 3)) + "m / " + str(tiempo/FPS) + "s")
-print ("Distancia real al objetivo: " + \
-  str(round(distancia(tray_real[-1], objetivos[-1]),3)) + "m")
+print ("Recorrido: " + str(round(espacio, 3)) + "m / " + str(tiempo / FPS) + "s")
+final_distance = str(round(distancia(tray_real[-1], objetivos[-1]), 3))
+print ("Distancia real al objetivo: " + final_distance + "m")
 
-mostrar(objetivos, tray_ideal, tray_real)   # Representación gráfica
+# Representación gráfica
+mostrar(objetivos, tray_ideal, tray_real)   
 
